@@ -11,3 +11,4 @@ socket.on('connect', function (socket) {
 socket.on('say', function (from, msg) {
 	console.log('MSG', from, ' saying ', msg);
 });
+
