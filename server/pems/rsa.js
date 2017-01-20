@@ -31,7 +31,7 @@ var encryptString = function(toEncrypt) {
 };
 
 var decryptString = function(toDecrypt) {
-    console.log('需要解析的字符串：'+toDecrypt);
+    // console.log('需要解析的字符串：'+toDecrypt);
     try{
         var buffer = new Buffer(toDecrypt, "base64");
         var decrypted = crypto.privateDecrypt(privateKey, buffer);

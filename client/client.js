@@ -3,6 +3,7 @@ var io = require('socket.io-client');
 var rsa = require('./pems/rsa');
 var http = require("http");
 var url = require("url");
+var ioreq = require("socket.io-request");
 var socket = io.connect('http://localhost:3000', {reconnect: true});
 
 // Add a connect listener
@@ -28,14 +29,23 @@ socket.on('reconnect_failed', function(error){
 	console.log('connect_timeout, error:'+error);
 });
 
+//异步，正常的监听
 socket.on('say', function (data) {
 	console.log('Recevie data from server: '+data);
-	sendRequest();
+	var cb = function(resData){
+		socket.emit('response', resData.join(""));
+	}
+	sendRequest(data, cb);
 });
 
+//同步，响应同步
+ioreq(socket).response("sync", function(req, res){
+	sendRequest("", res);
+ });
 
 
-function sendRequest(){
+
+function sendRequest(data, cb){
     // 目标地址
     strUrl = "http://210.51.17.150:7530/IntelligentCommunity/api/signInNew/getDaysByMonth.json?user_id=71812";
     var parse = url.parse(strUrl);
@@ -58,7 +68,7 @@ function sendRequest(){
             resData.push(chunk);
         }).on("end", function(){
         	console.log(resData.join(""));
-        	socket.emit('response', resData.join(""));
+        	cb(resData);
         });
     });
 
