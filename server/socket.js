@@ -16,6 +16,7 @@ var onlineClient = function(socket, data){
     };
     clients.push(client); //TODO::使用Redis保存连接，记得释放
     socket.auth = true;
+    console.log('=============Link Established==============');
   }else{
     socket.auth = false;
   }
@@ -47,6 +48,15 @@ exports.startSocketListen = function(io){
 
     socket.on('response',function(data){
         console.log('get client response, '+data);
+        data = JSON.parse(data);
+        //找到cb
+        apiLinks.forEach(function(apiLink){
+          console.log('1:'+apiLink.linkId+'   2:'+data.linkId);
+          if (apiLink.linkId == data.linkId) {
+            console.log('找到cb');
+            apiLink.cb(data.result);
+          }
+        })
     });
   });
 }
@@ -58,13 +68,14 @@ exports.sendDataToClient = function(clientId, data, cb){
      console.log(client.user);
     if (client.user == "client1") {
       //触发该用户客户端的 say 事件
-      // // 保存与app请求的关系
-      // var apiLink = {
-      //   id:'123',
-      //   cb:cb
-      // }
-      // apiLinks.push(apiLink); //TODO::释放内存
-      // data.id = '123';
+      // 保存与app请求的关系
+      var apiLink = {
+        linkId:'123',
+        cb:cb
+      }
+      apiLinks = [];
+      apiLinks.push(apiLink); //TODO::释放内存
+      data.linkId = apiLink.linkId;
       client.socket.emit('say', JSON.stringify(data));
     }
   });

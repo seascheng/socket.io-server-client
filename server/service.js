@@ -12,7 +12,7 @@ module.exports = {
 		pool.getConnection(function(err, connection) {
 			connection.query(selectSQL, id, function(err, result) {
 				// cb(result);
-				socket.sendDataToClient('clientId', {data:'123'}, cb); //向客户端发送数据
+				socket.sendDataToClient('clientId', {data:'321'}, cb); //向客户端发送数据
 				connection.release();
 			});
 		});

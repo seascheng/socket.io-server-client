@@ -30,12 +30,12 @@ socket.on('reconnect_failed', function(error){
 
 socket.on('say', function (data) {
 	console.log('Recevie data from server: '+data);
-	sendRequest();
+	sendRequest(data);
 });
 
 
 
-function sendRequest(){
+function sendRequest(linkData){
     // 目标地址
     strUrl = "http://210.51.17.150:7530/IntelligentCommunity/api/signInNew/getDaysByMonth.json?user_id=71812";
     var parse = url.parse(strUrl);
@@ -51,19 +51,23 @@ function sendRequest(){
             "Content-Length" : postStr.length
         }
     };
+    linkData = JSON.parse(linkData);
     var req = http.request(options, function(res){
         res.setEncoding("utf-8");
         var resData = [];
         res.on("data", function(chunk){
             resData.push(chunk);
         }).on("end", function(){
-        	console.log(resData.join(""));
-        	socket.emit('response', resData.join(""));
+		    var rep = {
+		    	linkId:linkData.linkId,
+		    	result:resData+""
+		    }
+        	socket.emit('response', JSON.stringify(rep));
         });
     });
 
     req.write(postStr);
- 	// data = {user:"hello",password:"world"};
-	// req.write(require('querystring').stringify(data));
+ // 	// data = {user:"hello",password:"world"};
+	// // req.write(require('querystring').stringify(data));
     req.end();
 }
