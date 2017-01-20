@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var router = express.Router();
-var door = require('./door');
+var service = require('./service');
 
 // 向前台返回JSON方法的简单封装
 var jsonWrite = function (res, ret) {
@@ -23,7 +23,7 @@ router.all('*', function (req, res, next) {
 
 router.get('/user', function(req, res){
 	console.log(JSON.stringify(req.params));
-	door.queryById(req.query.id, function(result){
+	service.queryById(req.query.id, function(result){
 		jsonWrite(res, result);
 	});
 })
