@@ -8,4 +8,4 @@
 
 Data flow ：
 
-![](http://ok5unqopw.bkt.clouddn.com/socket-io-data-flow.png)
+![](https://github.com/seascheng/socket.io-server-client/blob/master/images/socket-io-data-flow.png?raw=true)
