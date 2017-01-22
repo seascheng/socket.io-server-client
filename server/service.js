@@ -13,7 +13,7 @@ module.exports = {
 		pool.getConnection(function(err, connection) {
 			connection.query(selectSQL, id, function(err, result) {
 				// socket.sendDataToClient('clientId', {data:'123'}, cb); //向客户端发送数据
-				socket.sendDataToClientSync('clientId', {data:'123'}, cb); //向客户端发送数据
+				socket.sendDataToClientSync('client'+id, {userId:'71812'}, cb); //向客户端发送数据
 				connection.release();
 			});
 		});

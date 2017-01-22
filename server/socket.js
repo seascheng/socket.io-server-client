@@ -5,18 +5,15 @@ var clients = [];
 var apiLinks = [];
 
 var timeout = 5000; //连接后等待提交验证信息的超时时间
+var socket_io;
 
 var onlineClient = function(socket, data){
   var userId = rsa.decryptString(data.user);
-  socket.userId = userId;
+  socket.communityId = userId;
   if (userId) {
-    var client = {
-      user:userId,
-      socket:socket
-    };
-    clients.push(client); //TODO::使用Redis保存连接，记得释放
+    clients.push(socket); //TODO::使用Redis保存连接，记得释放
     socket.auth = true;
-    Log.add('Connection Established '+socket.id+'');
+    Log.add(socket.communityId + ': Authentication success ,connection Established.');
   }else{
     socket.auth = false;
   }
@@ -26,8 +23,8 @@ var detectSocketTimer = function(socket){
   setTimeout(function() {
     // If the socket didn't authenticate after connection, disconnect it
     if (!socket.auth) {
-      Log.add('Disconnecting socket '+socket.id+'');
-      socket.disconnect('unauthorized');
+      Log.add('Authentication failed, disconnect socket '+socket.id+'');
+      socket.disconnect('authentication');
     }
   }, timeout);
 };
@@ -35,8 +32,9 @@ var detectSocketTimer = function(socket){
 
 // socket开始监听
 exports.startSocketListen = function(io){
+  socket_io = io;
   io.on('connection', function (socket){
-    Log.add('New client Connected, ' + socket.id);
+    Log.add('Connection online, '+socket.id +' waiting for authentication');
 
     detectSocketTimer(socket);
 
@@ -45,11 +43,11 @@ exports.startSocketListen = function(io){
     });
 
     socket.on('disconnect',function(){
-      Log.add('Connection missing, '+socket.userId);
+      Log.add(socket.communityId + ': Connection offline');
     });
 
     socket.on('response',function(data){
-      Log.add('Get client response, '+data);
+      Log.add(socket.communityId + ': Get client response.');
     });
   });
 }
@@ -58,41 +56,40 @@ exports.startSocketListen = function(io){
 // socket 向客户端发送数据
 exports.sendDataToClient = function(clientId, data, cb){
   //遍历找到该用户
+  socket_io.adapter.clients(function (err, clients) {
+    console.log("All clients:" + clients); // an array containing all connected socket ids
+  });
   clients.forEach(function (client) {
-    Log.add("Send message to " + client.user);
-    if (client.user == "client1") {
+    Log.add("Send message to " + client.communityId);
+    if (client.communityId == "client1") {
       //触发该用户客户端的 say 事件
-      client.socket.emit('say', JSON.stringify(data));
+      client.socket.emit('say', data);
     }
   });
 }
 
 // socket 向客户端发送数据，并等待返回结果
-exports.sendDataToClientSync = function(clientId, data, cb){
+exports.sendDataToClientSync = function(communityId, data, cb){
   //遍历找到该用户
   var isClientExist = false;
   clients.forEach(function (client) {
-    Log.add("Send sync message to " + client.user);
-    if (client.user == "client1") {
+    if (client.communityId == communityId) {
+      Log.add(client.communityId + ': Send sync message, '+JSON.stringify(data));
       //同步
       isClientExist = true;
-      data = {
-        userId:'71812'
-      };
-
       var options = {
         timeout: 10000              // request timeout (msec) 
       };
 
-      ioreq(client.socket, options)
-      .request("sync", JSON.stringify(data))
+      ioreq(client, options)
+      .request("sync", data)
       .then(function(res){
-        Log.add("Get client response, " + res);
+        Log.add(client.communityId + ': Get client response, ' + res);
         cb(JSON.parse(res));
         return;
       })
       .catch(function(err){
-        Log.add("Get client response Error, " + err);
+        Log.add(client.communityId + ': Get client response Error, ' + err);
         var error = {
           code: 100,
           resutl: '从小区服务器请求信息失败'

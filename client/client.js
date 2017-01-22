@@ -12,8 +12,15 @@ var communityId = 'client1';
 // Add a connect listener
 socket.on('connect', function (socket) {
 	Log.add('Connected!');
-    var data = rsa.encryptString(communityId);
-    this.emit('online', {user:data});
+	Log.add(communityId);
+    var encryptCommunityId = rsa.encryptString(communityId);
+    // Log.add(data);
+    var data = {
+    	user:encryptCommunityId
+    };
+    Log.add('Authentication with info, ' + JSON.stringify(data));
+    this.userId = encryptCommunityId;
+    this.emit('online', data);
 });
 
 socket.on('connect_error', function(error){
@@ -34,18 +41,20 @@ socket.on('reconnect_failed', function(error){
 
 //异步，正常的监听
 socket.on('say', function (data) {
-	Log.add('Recevie data from server: '+data);
+	Log.add('Recevie data from server: '+JSON.stringify(data));
 	var cb = function(resData){
 		socket.emit('response', resData.join(""));
 	}
-	sendRequest(data, cb);
+	var strUrl = "http://210.51.17.150:7530/IntelligentCommunity/api/signInNew/getDaysByMonth.json?user_id="+data.userId;
+	var method = "GET";
+	var param = '';
+	sendRequest(strUrl, method, param, cb);
 });
 
 //同步，响应同步
 ioreq(socket).response("sync", function(req, res){
-	Log.add('Recevie data from server: '+req);
-	var data = JSON.parse(req);
-	var strUrl = "http://210.51.17.150:7530/IntelligentCommunity/api/signInNew/getDaysByMonth.json?user_id="+data.userId;
+	Log.add('Recevie data from server: '+req.userId);
+	var strUrl = "http://210.51.17.150:7530/IntelligentCommunity/api/signInNew/getDaysByMonth.json?user_id="+req.userId;
 	var method = "GET";
 	var param = '';
 	sendRequest(strUrl, method, param, res);
