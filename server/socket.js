@@ -1,5 +1,6 @@
 var rsa = require('./pems/rsa');
 var ioreq = require("socket.io-request");
+var Log = require('./log');
 var clients = [];
 var apiLinks = [];
 
@@ -15,7 +16,7 @@ var onlineClient = function(socket, data){
     };
     clients.push(client); //TODO::使用Redis保存连接，记得释放
     socket.auth = true;
-    console.log('Connection Established '+socket.id+'');
+    Log.add('Connection Established '+socket.id+'');
   }else{
     socket.auth = false;
   }
@@ -25,7 +26,7 @@ var detectSocketTimer = function(socket){
   setTimeout(function() {
     // If the socket didn't authenticate after connection, disconnect it
     if (!socket.auth) {
-      console.log('Disconnecting socket '+socket.id+'');
+      Log.add('Disconnecting socket '+socket.id+'');
       socket.disconnect('unauthorized');
     }
   }, timeout);
@@ -35,7 +36,7 @@ var detectSocketTimer = function(socket){
 // socket开始监听
 exports.startSocketListen = function(io){
   io.on('connection', function (socket){
-    console.info('New client Connected, ' + socket.id);
+    Log.add('New client Connected, ' + socket.id);
 
     detectSocketTimer(socket);
 
@@ -44,22 +45,21 @@ exports.startSocketListen = function(io){
     });
 
     socket.on('disconnect',function(){
-         console.log('Connection missing, '+socket.userId);
+      Log.add('Connection missing, '+socket.userId);
     });
 
-
     socket.on('response',function(data){
-        console.log('Get client response, '+data);
+      Log.add('Get client response, '+data);
     });
   });
 }
 
 
-// socket 像客户端发送数据
+// socket 向客户端发送数据
 exports.sendDataToClient = function(clientId, data, cb){
   //遍历找到该用户
   clients.forEach(function (client) {
-    console.log("Send message to " + client.user);
+    Log.add("Send message to " + client.user);
     if (client.user == "client1") {
       //触发该用户客户端的 say 事件
       client.socket.emit('say', JSON.stringify(data));
@@ -67,24 +67,47 @@ exports.sendDataToClient = function(clientId, data, cb){
   });
 }
 
-// socket 像客户端发送数据，并等待返回结果
+// socket 向客户端发送数据，并等待返回结果
 exports.sendDataToClientSync = function(clientId, data, cb){
   //遍历找到该用户
+  var isClientExist = false;
   clients.forEach(function (client) {
-    console.log("Send sync message to " + client.user);
+    Log.add("Send sync message to " + client.user);
     if (client.user == "client1") {
       //同步
-      ioreq(client.socket).request("sync")
-        .then(function(res){
-          cb(JSON.parse(res));
+      isClientExist = true;
+      data = {
+        userId:'71812'
+      };
+
+      var options = {
+        timeout: 10000              // request timeout (msec) 
+      };
+
+      ioreq(client.socket, options)
+      .request("sync", JSON.stringify(data))
+      .then(function(res){
+        Log.add("Get client response, " + res);
+        cb(JSON.parse(res));
+        return;
+      })
+      .catch(function(err){
+        Log.add("Get client response Error, " + err);
+        var error = {
+          code: 100,
+          resutl: '从小区服务器请求信息失败'
+        }
+        cb(error);
       });
+
     }
   });
+
+  if (!isClientExist) {
+      var error = {
+        code: 100,
+        resutl: '未找到小区服务器连接'
+      }
+      cb(error);
+  }
 }
-
-
-
-// module.exports = {
-//   startSocketListen:socketListen,
-//   sendDataToClient:sendDataToClient
-// }

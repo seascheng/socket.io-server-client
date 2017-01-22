@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var router = express.Router();
 var service = require('./service');
+var Log = require('./log');
 
 // 向前台返回JSON方法的简单封装
 var jsonWrite = function (res, ret) {
@@ -16,13 +17,12 @@ var jsonWrite = function (res, ret) {
 };
 
 router.all('*', function (req, res, next) {
-  console.log('Accessing the site ...');
   res.header('Access-Control-Allow-Origin', '*');
   next();
 });
 
 router.get('/user', function(req, res){
-	console.log(JSON.stringify(req.params));
+	Log.add('Recive request, '+ JSON.stringify(req.params));
 	service.queryById(req.query.id, function(result){
 		jsonWrite(res, result);
 	});

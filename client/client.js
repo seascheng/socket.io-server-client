@@ -1,37 +1,40 @@
 //client.js
 var io = require('socket.io-client');
-var rsa = require('./pems/rsa');
-var http = require("http");
-var url = require("url");
 var ioreq = require("socket.io-request");
 var socket = io.connect('http://localhost:3000', {reconnect: true});
 
+var rsa = require('./pems/rsa');
+var http = require("http");
+var url = require("url");
+var Log = require('./log');
+var communityId = 'client1';
+
 // Add a connect listener
 socket.on('connect', function (socket) {
-    console.log('Connected!');
-    var data = rsa.encryptString('client1');
+	Log.add('Connected!');
+    var data = rsa.encryptString(communityId);
     this.emit('online', {user:data});
 });
 
 socket.on('connect_error', function(error){
-	console.log('connect_error, error:'+error);
+	Log.add('Connect_error, error:'+error);
 });
 
 socket.on('connect_timeout', function(error){
-	console.log('connect_timeout, error:'+error);
+	Log.add('Connect_timeout, error:'+error);
 });
 
 socket.on('reconnecting', function(error){
-	console.log('reconnecting...');
+	Log.add('Reconnecting...');
 });
 
 socket.on('reconnect_failed', function(error){
-	console.log('connect_timeout, error:'+error);
+	Log.add('Connect_timeout, error:'+error);
 });
 
 //异步，正常的监听
 socket.on('say', function (data) {
-	console.log('Recevie data from server: '+data);
+	Log.add('Recevie data from server: '+data);
 	var cb = function(resData){
 		socket.emit('response', resData.join(""));
 	}
@@ -40,25 +43,24 @@ socket.on('say', function (data) {
 
 //同步，响应同步
 ioreq(socket).response("sync", function(req, res){
-	sendRequest("", res);
+	Log.add('Recevie data from server: '+req);
+	var data = JSON.parse(req);
+	var strUrl = "http://210.51.17.150:7530/IntelligentCommunity/api/signInNew/getDaysByMonth.json?user_id="+data.userId;
+	var method = "GET";
+	var param = '';
+	sendRequest(strUrl, method, param, res);
  });
 
-
-
-function sendRequest(data, cb){
+function sendRequest(strUrl, method, param, cb){
     // 目标地址
-    strUrl = "http://210.51.17.150:7530/IntelligentCommunity/api/signInNew/getDaysByMonth.json?user_id=71812";
     var parse = url.parse(strUrl);
-
-    // 待发送的数据
-    var postStr = "user_id=71812";
     var options = {
-        "method" : "GET",
+        "method" : method,
         "host"   : parse.hostname,
         "path"   : parse.path,
         "port"   : parse.port,
         "headers": {
-            "Content-Length" : postStr.length
+            "Content-Length" : param.length
         }
     };
     var req = http.request(options, function(res){
@@ -67,12 +69,12 @@ function sendRequest(data, cb){
         res.on("data", function(chunk){
             resData.push(chunk);
         }).on("end", function(){
-        	console.log(resData.join(""));
+        	Log.add('Recevie from localhost and response to server: '+resData.join(""));
         	cb(resData);
         });
     });
 
-    req.write(postStr);
+    req.write(param);
  	// data = {user:"hello",password:"world"};
 	// req.write(require('querystring').stringify(data));
     req.end();

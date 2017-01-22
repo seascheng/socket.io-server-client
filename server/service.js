@@ -1,5 +1,6 @@
 var pool = require('./mysql');
 var socket = require('./socket');
+var Log = require('./log');
 
 var selectSQL = 'SELECT * FROM sandaliceshop.sandalice_address WHERE id=?';
 var insertSQL = 'INSERT INTO VALUES';

@@ -1,0 +1,92 @@
+02:13:53   Server listening on *:3000
+02:14:33   Server listening on *:3000
+02:14:33   New client Connected, XJnUEbDHknFBdUxMAAAA
+02:14:33   Connection Established XJnUEbDHknFBdUxMAAAA
+02:15:14   Recive request, {}
+02:15:14   Send sync message to client1
+02:17:13   Connection missing, client1
+02:17:14   New client Connected, zeymIrm7yNl_dGzBAAAB
+02:17:14   Connection Established zeymIrm7yNl_dGzBAAAB
+02:17:52   Recive request, {}
+02:17:52   Send sync message to client1
+02:17:52   Send sync message to client1
+02:18:52   Server listening on *:3000
+02:18:53   New client Connected, 0wry8Hd5PF6wgD9sAAAA
+02:18:53   Connection Established 0wry8Hd5PF6wgD9sAAAA
+02:18:54   Recive request, {}
+02:18:54   Send sync message to client1
+02:22:19   Server listening on *:3000
+02:22:20   New client Connected, qQVjFIXDq-cfJtH4AAAA
+02:22:20   Connection Established qQVjFIXDq-cfJtH4AAAA
+02:22:21   Recive request, {}
+02:22:21   Send sync message to client1
+02:22:21   Get client response, [object Object]
+02:22:51   Recive request, {}
+02:22:51   Send sync message to client1
+02:22:51   Get client response, [object Object]
+02:22:58   Server listening on *:3000
+02:22:59   New client Connected, Qd4QiD6eO1ll2IuTAAAA
+02:22:59   Connection Established Qd4QiD6eO1ll2IuTAAAA
+02:25:18   Connection missing, client1
+02:25:19   New client Connected, Ab9Jg5UO4yjb-lGoAAAB
+02:25:19   Connection Established Ab9Jg5UO4yjb-lGoAAAB
+02:25:24   Recive request, {}
+02:25:24   Send sync message to client1
+02:25:24   Send sync message to client1
+02:25:25   Recive request, {}
+02:25:25   Send sync message to client1
+02:25:25   Send sync message to client1
+02:26:31   Get client response, {"days":[11,13,16,17],"code":1}
+02:26:33   Get client response, {"days":[11,13,16,17],"code":1}
+02:37:18   Server listening on *:3000
+02:37:21   New client Connected, st4XCy8UmxiSmF4HAAAA
+02:37:21   Connection Established st4XCy8UmxiSmF4HAAAA
+02:37:25   Recive request, {}
+02:37:25   Send sync message to client1
+02:37:25   Get client response, {"days":[11,13,16,17],"code":1}
+02:37:39   Connection missing, client1
+02:37:40   New client Connected, F4ICWrKHZPFcADo2AAAB
+02:37:40   Connection Established F4ICWrKHZPFcADo2AAAB
+02:37:47   Recive request, {}
+02:37:47   Send sync message to client1
+02:37:47   Send sync message to client1
+02:37:47   Get client response, 
+02:39:47   Recive request, {}
+02:39:47   Send sync message to client1
+02:39:47   Send sync message to client1
+02:39:47   Get client response, 
+02:41:47   Recive request, {}
+02:41:47   Send sync message to client1
+02:41:47   Send sync message to client1
+02:41:47   Get client response, 
+02:43:52   Recive request, {}
+02:43:52   Send sync message to client1
+02:43:52   Send sync message to client1
+02:43:52   Get client response, 
+02:49:32   Connection missing, client1
+02:49:32   New client Connected, iT16Gvh9_hj7tR7lAAAC
+02:49:33   Connection Established iT16Gvh9_hj7tR7lAAAC
+02:49:35   Server listening on *:3000
+02:49:38   New client Connected, PC7pfaHtHhsmJfuKAAAA
+02:49:38   Connection Established PC7pfaHtHhsmJfuKAAAA
+02:49:52   Recive request, {}
+02:49:52   Send sync message to client1
+02:49:57   Get client response Error, TimeoutError: exceeded 5000 (msec)
+02:51:12   Connection missing, client1
+02:51:13   New client Connected, kbUUwjZMNiLWd4JWAAAB
+02:51:13   Connection Established kbUUwjZMNiLWd4JWAAAB
+02:51:18   Recive request, {}
+02:51:18   Send sync message to client1
+02:51:18   Send sync message to client1
+02:51:18   Get client response, {"days":[11,13,16,17],"code":1}
+02:51:23   Get client response Error, TimeoutError: exceeded 5000 (msec)
+02:52:38   Connection missing, client1
+02:52:39   New client Connected, CvBQA6Nbu0_dwiIfAAAC
+02:52:39   Connection Established CvBQA6Nbu0_dwiIfAAAC
+02:52:41   Recive request, {}
+02:52:41   Send sync message to client1
+02:52:41   Send sync message to client1
+02:52:41   Send sync message to client1
+02:52:41   Get client response, {"days":[11,13,16,17],"code":1}
+02:52:46   Get client response Error, TimeoutError: exceeded 5000 (msec)
+02:52:46   Get client response Error, TimeoutError: exceeded 5000 (msec)
