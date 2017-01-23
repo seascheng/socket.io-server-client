@@ -49,16 +49,39 @@ module.exports = {
                 connection.release();
             });
         });
+        pool.getConnection(function(err, connection) {
+            connection.query(lockUserCar, [userId,communityId], function(err, result) {
+            	connection.release();
+            });
+        });
     },
     unlockcar: function (user_id,room_id,community_id, cb) {
-        var user_id = +user_id; //转整数
-        var room_id = +room_id; //转整数
-        var community_id = +community_id; //转整数
+        var userId = +user_id; //转整数
+        var roomId = +room_id; //转整数
+        var communityId = +community_id; //转整数
         pool.getConnection(function(err, connection) {
             connection.query(selectUserCar, [userId,communityId], function(err, result) {
                 console.log(result);
                 var data = convertResult(result);
                 socket.sendDataToClientSync('unlockcar', communityId, data, cb); //向客户端发送数据
+                connection.release();
+            });
+        });
+        pool.getConnection(function(err, connection) {
+            connection.query(unlockUserCar, [userId,communityId], function(err, result) {
+            	connection.release();
+            });
+        });
+    },
+    querycar: function (user_id,room_id,community_id, cb) {
+        var userId = +user_id; //转整数
+        var roomId = +room_id; //转整数
+        var communityId = +community_id; //转整数
+        pool.getConnection(function(err, connection) {
+            connection.query(selectUserCar, [userId,communityId], function(err, result) {
+                console.log(result);
+                var data = convertResult(result);
+                socket.sendDataToClientSync('querycar', communityId, data, cb); //向客户端发送数据
                 connection.release();
             });
         });

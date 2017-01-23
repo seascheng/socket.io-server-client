@@ -37,15 +37,16 @@ router.get('/lockcar', function(req, res){
 
 router.get('/unlockcar', function(req, res){
     Log.add('Recive request, '+ JSON.stringify(req.params));
-    service.unlockcar(req.query.id, function(result){
+    service.unlockcar(req.query.user_id,req.query.room_id,req.query.community_id, function(result){
         jsonWrite(res, result);
     });
 })
 
 router.get('/querycar', function(req, res){
     Log.add('Recive request, '+ JSON.stringify(req.params));
-    service.querycar(req.query.id, function(result){
+    service.querycar(req.query.user_id, req.query.room_id, req.query.community_id, function(result){
         jsonWrite(res, result);
     });
 })
+
 module.exports = router;

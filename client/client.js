@@ -1,13 +1,17 @@
 //client.js
 var io = require('socket.io-client');
 var ioreq = require("socket.io-request");
-var socket = io.connect('http://localhost:3000', {reconnect: true});
+var config = require("./config");
+
+var socket = io.connect(config.socketUrl, {reconnect: true});
+var communityId = config.communityId;
+var httpUrl = config.httpUrl;
 
 var rsa = require('./pems/rsa');
 var http = require("http");
 var url = require("url");
 var Log = require('./log');
-var communityId = '426264';
+
 
 // Add a connect listener
 socket.on('connect', function (socket) {
@@ -39,31 +43,10 @@ socket.on('reconnect_failed', function(error){
 	Log.add('Connect_timeout, error:'+error);
 });
 
-//异步，正常的监听
-socket.on('say', function (data) {
-	Log.add('Recevie data from server: '+JSON.stringify(data));
-	var cb = function(resData){
-		socket.emit('response', resData.join(""));
-	}
-	var strUrl = "http://210.51.17.150:7530/IntelligentCommunity/api/signInNew/getDaysByMonth.json?user_id="+data.userId;
-	var method = "GET";
-	var param = '';
-	sendRequest(strUrl, method, param, cb);
-});
-
-//同步，响应同步
-ioreq(socket).response("sync", function(req, res){
-	Log.add('Recevie data from server: '+req.userId);
-	var strUrl = "http://210.51.17.150:7530/IntelligentCommunity/api/signInNew/getDaysByMonth.json?user_id="+req.userId;
-	var method = "GET";
-	var param = '';
-	sendRequest(strUrl, method, param, res);
- });
-
  //锁车
  ioreq(socket).response("lockcar", function(req, res){
 	Log.add('Recevie data from server: '+JSON.stringify(req));
-	var strUrl = "http://122.224.250.35:7023/parking/api/lockcar";
+	var strUrl = httpUrl+"/parking/api/lockcar";
 	var method = "POST";
 	var param = req;
 	sendRequest(strUrl, method, param, res);
@@ -72,47 +55,53 @@ ioreq(socket).response("sync", function(req, res){
 //开锁
 ioreq(socket).response("unlockcar", function(req, res){
 	Log.add('Recevie data from server: '+JSON.stringify(req));
-	var strUrl = "http://122.224.250.35:7023/parking/api/unlockcar";
+	var strUrl = httpUrl+"/parking/api/unlockcar";
 	var method = "POST";
-	var param = '';
+	var param = req;
 	sendRequest(strUrl, method, param, res);
  });
 
 //查询车辆
 ioreq(socket).response("querycar", function(req, res){
 	Log.add('Recevie data from server: '+JSON.stringify(req));
-	var strUrl = "http://122.224.250.35:7023/parking/api/querycar";
+	var strUrl = httpUrl+"/parking/api/querycar";
 	var method = "POST";
-	var param = '';
+	var param = req;
 	sendRequest(strUrl, method, param, res);
  });
 
 
 
 function sendRequest(strUrl, method, param, cb){
-    // 目标地址
-    var parse = url.parse(strUrl);
-    var options = {
-        "method" : method,
-        "host"   : parse.hostname,
-        "path"   : parse.path,
-        "port"   : parse.port,
-        "headers": {
-            'Content-Type': 'application/json; charset=UTF-8'
-        }
-    };
-    var req = http.request(options, function(res){
-        res.setEncoding("utf-8");
-        var resData = [];
-        res.on("data", function(chunk){
-            resData.push(chunk);
-        }).on("end", function(){
-        	Log.add('Recevie from localhost and response to server: '+resData.join(""));
-        	cb(resData);
-        });
-    });
+	try{
+		// 目标地址
+	    var parse = url.parse(strUrl);
+	    var options = {
+	        "method" : method,
+	        "host"   : parse.hostname,
+	        "path"   : parse.path,
+	        "port"   : parse.port,
+	        "headers": {
+	            'Content-Type': 'application/json; charset=UTF-8'
+	        }
+	    };
+	    var req = http.request(options, function(res){
+	        res.setEncoding("utf-8");
+	        var resData = [];
+	        res.on("data", function(chunk){
+	            resData.push(chunk);
+	        }).on("end", function(){
+	        	Log.add('Recevie from localhost and response to server: '+resData.join(""));
+	        	cb(resData);
+	        });
+	    });
 
-    // req.write(param);
-	req.write(JSON.stringify(param));
-    req.end();
+	    // req.write(param);
+		req.write(JSON.stringify(param));
+	    req.end();
+
+	}catch(error){
+
+	}
+   
 }

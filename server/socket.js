@@ -52,15 +52,6 @@ exports.startSocketListen = function(io){
   });
 }
 
-// socket 向客户端发送数据
-exports.sendDataToClient = function(clientId, data, cb){
-  var client = communitySocketDic[communityId];
-  if (client) {
-    //触发该用户客户端的 say 事件
-      client.socket.emit('say', data);
-  }
-}
-
 // socket 向客户端发送数据，并等待返回结果
 exports.sendDataToClientSync = function(event, communityId, data, cb){
   //遍历找到该用户
