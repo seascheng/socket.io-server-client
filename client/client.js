@@ -7,7 +7,7 @@ var rsa = require('./pems/rsa');
 var http = require("http");
 var url = require("url");
 var Log = require('./log');
-var communityId = 'client1';
+var communityId = '426264';
 
 // Add a connect listener
 socket.on('connect', function (socket) {
@@ -60,6 +60,35 @@ ioreq(socket).response("sync", function(req, res){
 	sendRequest(strUrl, method, param, res);
  });
 
+ //锁车
+ ioreq(socket).response("lockcar", function(req, res){
+	Log.add('Recevie data from server: '+JSON.stringify(req));
+	var strUrl = "http://122.224.250.35:7023/parking/api/lockcar";
+	var method = "POST";
+	var param = req;
+	sendRequest(strUrl, method, param, res);
+ });
+
+//开锁
+ioreq(socket).response("unlockcar", function(req, res){
+	Log.add('Recevie data from server: '+JSON.stringify(req));
+	var strUrl = "http://122.224.250.35:7023/parking/api/unlockcar";
+	var method = "POST";
+	var param = '';
+	sendRequest(strUrl, method, param, res);
+ });
+
+//查询车辆
+ioreq(socket).response("querycar", function(req, res){
+	Log.add('Recevie data from server: '+JSON.stringify(req));
+	var strUrl = "http://122.224.250.35:7023/parking/api/querycar";
+	var method = "POST";
+	var param = '';
+	sendRequest(strUrl, method, param, res);
+ });
+
+
+
 function sendRequest(strUrl, method, param, cb){
     // 目标地址
     var parse = url.parse(strUrl);
@@ -69,7 +98,7 @@ function sendRequest(strUrl, method, param, cb){
         "path"   : parse.path,
         "port"   : parse.port,
         "headers": {
-            "Content-Length" : param.length
+            'Content-Type': 'application/json; charset=UTF-8'
         }
     };
     var req = http.request(options, function(res){
@@ -83,8 +112,7 @@ function sendRequest(strUrl, method, param, cb){
         });
     });
 
-    req.write(param);
- 	// data = {user:"hello",password:"world"};
-	// req.write(require('querystring').stringify(data));
+    // req.write(param);
+	req.write(JSON.stringify(param));
     req.end();
 }
