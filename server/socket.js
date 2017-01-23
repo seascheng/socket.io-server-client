@@ -1,7 +1,7 @@
 var rsa = require('./pems/rsa');
 var ioreq = require("socket.io-request");
 var Log = require('./log');
-var clients = [];
+var communitySocketDic = {};  //存放小区id和socket的对应关系
 var apiLinks = [];
 
 var timeout = 5000; //连接后等待提交验证信息的超时时间
@@ -11,7 +11,7 @@ var onlineClient = function(socket, data){
   var userId = rsa.decryptString(data.user);
   socket.communityId = userId;
   if (userId) {
-    clients.push(socket); //TODO::使用Redis保存连接，记得释放
+    communitySocketDic[userId] = socket;
     socket.auth = true;
     Log.add(socket.communityId + ': Authentication success ,connection Established.');
   }else{
@@ -32,7 +32,6 @@ var detectSocketTimer = function(socket){
 
 // socket开始监听
 exports.startSocketListen = function(io){
-  socket_io = io;
   io.on('connection', function (socket){
     Log.add('Connection online, '+socket.id +' waiting for authentication');
 
@@ -43,6 +42,7 @@ exports.startSocketListen = function(io){
     });
 
     socket.on('disconnect',function(){
+      delete communitySocketDic[socket.communityId];
       Log.add(socket.communityId + ': Connection offline');
     });
 
@@ -55,50 +55,43 @@ exports.startSocketListen = function(io){
 
 // socket 向客户端发送数据
 exports.sendDataToClient = function(clientId, data, cb){
-  //遍历找到该用户
-  socket_io.adapter.clients(function (err, clients) {
-    console.log("All clients:" + clients); // an array containing all connected socket ids
-  });
-  clients.forEach(function (client) {
-    Log.add("Send message to " + client.communityId);
-    if (client.communityId == "client1") {
-      //触发该用户客户端的 say 事件
+  var client = communitySocketDic[communityId];
+  if (client) {
+    //触发该用户客户端的 say 事件
       client.socket.emit('say', data);
-    }
-  });
+  }
 }
 
 // socket 向客户端发送数据，并等待返回结果
 exports.sendDataToClientSync = function(communityId, data, cb){
   //遍历找到该用户
   var isClientExist = false;
-  clients.forEach(function (client) {
-    if (client.communityId == communityId) {
-      Log.add(client.communityId + ': Send sync message, '+JSON.stringify(data));
-      //同步
-      isClientExist = true;
-      var options = {
-        timeout: 10000              // request timeout (msec) 
-      };
+  var client = communitySocketDic[communityId];
+  if (client) {
+    Log.add(client.communityId + ': Send sync message, '+JSON.stringify(data));
+    //同步
+    isClientExist = true;
+    var options = {
+      timeout: 10000              // request timeout (msec) 
+    };
 
-      ioreq(client, options)
-      .request("sync", data)
-      .then(function(res){
-        Log.add(client.communityId + ': Get client response, ' + res);
-        cb(JSON.parse(res));
-        return;
-      })
-      .catch(function(err){
-        Log.add(client.communityId + ': Get client response Error, ' + err);
-        var error = {
-          code: 100,
-          resutl: '从小区服务器请求信息失败'
-        }
-        cb(error);
-      });
-
-    }
-  });
+    ioreq(client, options)
+    .request("sync", data)
+    .then(function(res){
+      Log.add(client.communityId + ': Get client response, ' + res);
+      cb(JSON.parse(res));
+      return;
+    })
+    .catch(function(err){
+      Log.add(client.communityId + ': Get client response Error, ' + err);
+      var error = {
+        code: 100,
+        resutl: '从小区服务器请求信息失败'
+      }
+      cb(error);
+    });
+  }
+  
 
   if (!isClientExist) {
       var error = {
