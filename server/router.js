@@ -8,11 +8,16 @@ var Log = require('./log');
 var jsonWrite = function (res, ret) {
 	if(typeof ret === 'undefined') {
 		res.json({
-			code:'1',
+			code:'-1',
 			msg: '操作失败'
 		});
 	} else {
-		res.json(ret);
+		var result = {
+    			code:'1',
+				msg: '操作成功',
+				result:ret
+    		}
+		res.json(result);
 	}
 };
 
@@ -29,21 +34,21 @@ router.get('/user', function(req, res){
 })
 
 router.get('/lockcar', function(req, res){
-    Log.add('Recive request, '+ JSON.stringify(req.params));
+    Log.add('Recive request, /lockcar');
     service.lockcar(req.query.user_id,req.query.room_id,req.query.community_id, function(result){
         jsonWrite(res, result);
     });
 })
 
 router.get('/unlockcar', function(req, res){
-    Log.add('Recive request, '+ JSON.stringify(req.params));
+    Log.add('Recive request, /unlockcar');
     service.unlockcar(req.query.user_id,req.query.room_id,req.query.community_id, function(result){
         jsonWrite(res, result);
     });
 })
 
 router.get('/querycar', function(req, res){
-    Log.add('Recive request, '+ JSON.stringify(req.params));
+    Log.add('Recive request, /querycar');
     service.querycar(req.query.user_id, req.query.room_id, req.query.community_id, function(result){
         jsonWrite(res, result);
     });

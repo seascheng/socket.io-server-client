@@ -15,7 +15,7 @@ exports.add = function(msg){
 	var logBaseInfo = getLogBaseInfo();
 	var logFileName = './logs/'+logBaseInfo.fileName;
 	var logMsg = logBaseInfo.logTime + '   ' + msg +'\n';
-
+	console.log(logMsg);
 	fs.appendFile(logFileName, logMsg, 'utf8', function(err){
 		if (err) {
 			console.error(err);

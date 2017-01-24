@@ -73,35 +73,36 @@ ioreq(socket).response("querycar", function(req, res){
 
 
 function sendRequest(strUrl, method, param, cb){
-	try{
-		// 目标地址
-	    var parse = url.parse(strUrl);
-	    var options = {
-	        "method" : method,
-	        "host"   : parse.hostname,
-	        "path"   : parse.path,
-	        "port"   : parse.port,
-	        "headers": {
-	            'Content-Type': 'application/json; charset=UTF-8'
-	        }
-	    };
-	    var req = http.request(options, function(res){
-	        res.setEncoding("utf-8");
-	        var resData = [];
-	        res.on("data", function(chunk){
-	            resData.push(chunk);
-	        }).on("end", function(){
-	        	Log.add('Recevie from localhost and response to server: '+resData.join(""));
-	        	cb(resData);
-	        });
-	    });
+	cb(JSON.stringify([{"carcode":"鲁FP8888","status":0},{"carcode":"鲁HP8888","status":0},{"carcode":"鲁BP8888","status":1}]));
+	// try{
+	// 	// 目标地址
+	//     var parse = url.parse(strUrl);
+	//     var options = {
+	//         "method" : method,
+	//         "host"   : parse.hostname,
+	//         "path"   : parse.path,
+	//         "port"   : parse.port,
+	//         "headers": {
+	//             'Content-Type': 'application/json; charset=UTF-8'
+	//         }
+	//     };
+	//     var req = http.request(options, function(res){
+	//         res.setEncoding("utf-8");
+	//         var resData = [];
+	//         res.on("data", function(chunk){
+	//             resData.push(chunk);
+	//         }).on("end", function(){
+	//         	Log.add('Recevie from localhost and response to server: '+resData.join(""));
+	//         	cb(resData);
+	//         });
+	//     });
 
-	    // req.write(param);
-		req.write(JSON.stringify(param));
-	    req.end();
+	//     // req.write(param);
+	// 	req.write(JSON.stringify(param));
+	//     req.end();
 
-	}catch(error){
+	// }catch(error){
 
-	}
+	// }
    
 }

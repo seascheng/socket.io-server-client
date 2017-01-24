@@ -11,9 +11,16 @@ var onlineClient = function(socket, data){
   var userId = rsa.decryptString(data.user);
   socket.communityId = userId;
   if (userId) {
+    //如果当前已经存在链接，则先断掉
+    if (communitySocketDic[userId]) {
+      Log.add(socket.communityId + ': A new reconnection is comming , disconnect pre-socket.');
+      communitySocketDic[userId].disconnect('A new reconnection is comming');
+    }
     communitySocketDic[userId] = socket;
     socket.auth = true;
     Log.add(socket.communityId + ': Authentication success ,connection Established.');
+    Log.add('Connection online, Socket: '+socket.id +'  Dic: '+communitySocketDic[userId].id);
+
   }else{
     socket.auth = false;
   }
@@ -42,8 +49,9 @@ exports.startSocketListen = function(io){
     });
 
     socket.on('disconnect',function(){
-      delete communitySocketDic[socket.communityId];
       Log.add(socket.communityId + ': Connection offline');
+      Log.add('Connection offline, Socket: '+socket.id +'  Dic: '+communitySocketDic[socket.communityId].id);
+      delete communitySocketDic[socket.communityId];
     });
 
     socket.on('response',function(data){
@@ -75,8 +83,8 @@ exports.sendDataToClientSync = function(event, communityId, data, cb){
     .catch(function(err){
       Log.add(client.communityId + ': Get client response Error, ' + err);
       var error = {
-        code: 100,
-        resutl: '从小区服务器请求信息失败'
+        code: -1,
+        result: '从小区服务器请求信息失败'
       }
       cb(error);
     });
@@ -85,8 +93,8 @@ exports.sendDataToClientSync = function(event, communityId, data, cb){
 
   if (!isClientExist) {
       var error = {
-        code: 100,
-        resutl: '未找到小区服务器连接'
+        code: -1,
+        result: '未找到小区服务器连接'
       }
       cb(error);
   }
