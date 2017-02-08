@@ -2,7 +2,7 @@ var rsa = require('./pems/rsa');
 var ioreq = require("socket.io-request");
 var Log = require('./log');
 var communitySocketDic = {};  //存放小区id和socket的对应关系
-var apiLinks = [];
+// var apiLinks = [];
 
 var timeout = 5000; //连接后等待提交验证信息的超时时间
 var socket_io;
@@ -62,7 +62,6 @@ exports.startSocketListen = function(io){
 
 // socket 向客户端发送数据，并等待返回结果
 exports.sendDataToClientSync = function(event, communityId, data, cb){
-  //遍历找到该用户
   var isClientExist = false;
   var client = communitySocketDic[communityId];
   if (client) {

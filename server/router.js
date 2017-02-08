@@ -12,12 +12,16 @@ var jsonWrite = function (res, ret) {
 			msg: '操作失败'
 		});
 	} else {
-		var result = {
+		if (!!ret.code) {
+			res.json(ret);
+		}else{
+			var result = {
     			code:'1',
 				msg: '操作成功',
 				result:ret
     		}
-		res.json(result);
+			res.json(result);
+		}
 	}
 };
 
@@ -27,28 +31,39 @@ router.all('*', function (req, res, next) {
 });
 
 router.get('/user', function(req, res){
-	Log.add('Recive request, '+ JSON.stringify(req.params));
+	Log.add('Receive request, '+ JSON.stringify(req.params));
 	service.queryById(req.query.id, function(result){
 		jsonWrite(res, result);
 	});
 })
 
 router.get('/lockcar', function(req, res){
-    Log.add('Recive request, /lockcar');
+    Log.add('Receive request, /lockcar');
     service.lockcar(req.query.user_id,req.query.room_id,req.query.community_id, function(result){
+    	if (!result.code) {
+    		Log.add('lockcar success: '+req.query.user_id);
+    		service.lockcarUpdate(req.query.user_id,req.query.room_id,req.query.community_id, function(){
+    		});
+    	}
         jsonWrite(res, result);
     });
 })
 
 router.get('/unlockcar', function(req, res){
-    Log.add('Recive request, /unlockcar');
+    Log.add('Receive request, /unlockcar');
     service.unlockcar(req.query.user_id,req.query.room_id,req.query.community_id, function(result){
+    	if (!result.code) {
+    		Log.add('unlockcar success: '+req.query.user_id);
+    		service.unlockcarUpdate(req.query.user_id,req.query.room_id,req.query.community_id, function(){
+
+    		});
+    	}
         jsonWrite(res, result);
     });
 })
 
 router.get('/querycar', function(req, res){
-    Log.add('Recive request, /querycar');
+    Log.add('Receive request, /querycar');
     service.querycar(req.query.user_id, req.query.room_id, req.query.community_id, function(result){
         jsonWrite(res, result);
     });

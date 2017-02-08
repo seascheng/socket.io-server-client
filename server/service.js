@@ -49,6 +49,11 @@ module.exports = {
                 connection.release();
             });
         });
+    },
+    lockcarUpdate: function (user_id, room_id, community_id, cb) {
+        var userId = +user_id; //转整数
+		var roomId = +room_id; //转整数
+        var communityId = +community_id; //转整数
         pool.getConnection(function(err, connection) {
             connection.query(lockUserCar, [userId,communityId], function(err, result) {
             	connection.release();
@@ -67,6 +72,11 @@ module.exports = {
                 connection.release();
             });
         });
+    },
+    unlockcarUpdate: function (user_id,room_id,community_id, cb) {
+        var userId = +user_id; //转整数
+        var roomId = +room_id; //转整数
+        var communityId = +community_id; //转整数
         pool.getConnection(function(err, connection) {
             connection.query(unlockUserCar, [userId,communityId], function(err, result) {
             	connection.release();
